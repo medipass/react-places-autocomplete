@@ -42,7 +42,9 @@ class PlacesAutocomplete extends Component {
     }
 
     this.autocompleteService = new google.maps.places.AutocompleteService()
-    this.autocompleteOK = google.maps.places.PlacesServiceStatus.OK
+		this.autocompleteOK = google.maps.places.PlacesServiceStatus.OK
+		this.autocompleteZERO_RESULTS = google.maps.places.PlacesServiceStatus.ZERO_RESULTS
+		this.geocodeService = new google.maps.Geocoder();
   }
 
   autocompleteCallback(predictions, status) {
@@ -57,28 +59,35 @@ class PlacesAutocomplete extends Component {
       secondaryText: structured_formatting.secondary_text,
     })
 
-    const { highlightFirstSuggestion } = this.props
-
+		const { highlightFirstSuggestion } = this.props
     this.setState({
       autocompleteItems: predictions.map((p, idx) => ({
-        suggestion: p.description,
+        suggestion: p.description || p.formatted_address,
         placeId: p.place_id,
         active: highlightFirstSuggestion && idx === 0 ? true : false,
         index: idx,
-        formattedSuggestion: formattedSuggestion(p.structured_formatting),
+				formattedSuggestion: p.structured_formatting ? formattedSuggestion(p.structured_formatting) : p.formatted_address
       })),
     })
   }
 
   fetchPredictions() {
-    const { value } = this.props.inputProps
+		const { value } = this.props.inputProps
     if (value.length) {
       this.autocompleteService.getPlacePredictions(
         {
           ...this.props.options,
           input: value,
         },
-        this.autocompleteCallback
+        (predictions, status) => {
+					if (status === this.autocompleteZERO_RESULTS) {
+						this.geocodeService.geocode({ address: value, ...this.props.options }, (predictions, status) => {
+							this.autocompleteCallback(predictions, status);
+						});
+						return null;
+					}
+					this.autocompleteCallback(predictions, status)
+				}
       )
     }
   }
@@ -212,7 +221,7 @@ class PlacesAutocomplete extends Component {
   }
 
   handleInputChange(event) {
-    const { value } = event.target
+		const { value } = event.target
     this.props.inputProps.onChange(value)
     this.setState({ userInputValue: value })
     if (!value) {
@@ -403,8 +412,10 @@ PlacesAutocomplete.propTypes = {
     bounds: PropTypes.object,
     componentRestrictions: PropTypes.object,
     location: PropTypes.object,
-    offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    radius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		offset: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		placeId: PropTypes.string,
+		radius: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+		region: PropTypes.string,
     types: PropTypes.array,
   }),
   debounce: PropTypes.number,

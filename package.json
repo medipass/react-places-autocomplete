@@ -1,10 +1,9 @@
 {
-  "name": "react-places-autocomplete",
-  "version": "6.1.2",
+  "name": "@medipass/react-places-autocomplete",
+  "version": "6.1.2-0",
   "description": "A React component for Google Maps Places Autocomplete",
   "main": "dist/index.js",
   "scripts": {
-    "commit": "git-cz",
     "watch:test": "npm t -- -w",
     "test": "mocha src/tests/setup.js src/tests/index.spec.js",
     "prebuild": "rimraf dist",
@@ -89,9 +88,6 @@
   "config": {
     "commitizen": {
       "path": "node_modules/cz-conventional-changelog"
-    },
-    "ghooks": {
-      "pre-commit": "npm run test"
     }
   },
   "babel": {
