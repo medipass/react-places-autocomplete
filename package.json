@@ -1,6 +1,6 @@
 {
   "name": "@medipass/react-places-autocomplete",
-  "version": "6.1.2-0",
+  "version": "6.1.2-1",
   "description": "A React component for Google Maps Places Autocomplete",
   "main": "dist/index.js",
   "scripts": {
